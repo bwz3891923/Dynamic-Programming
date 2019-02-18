@@ -1,0 +1,29 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+int max(int x,int y) {return x>y? x:y;}
+
+int dp_opt(vector<int> arr){    //动态规划
+	int len=arr.size(); //求数组arr的长度
+	vector<int> record(len,0); //建立数组record，规模和arr相当，初始化为0，用来存储对每个子过程的动态规划求解
+	record[0]=arr[0];  //只有一个元素时，毫无疑问，只有自己是最大的
+	record[1]=max(arr[0],arr[1]);  //当有两个元素时，只能二者选一，所以只能选择最大者
+	
+	for(int i=2;i<len;i++){ //从第三个元素开始，就可以利用第一第二个元素所得到的出口进行叠加
+		int A=record[i-2]+arr[i];  //设A为选择了当前的元素，那么它将能继承离自己最近的那个子过程的求值。比如说【1，3，2 …】，如果选择了第三个元素2，那么按照规则，它不能选择旁边的元素3，但可以选择元素1。如果是比较后的一步如【1，1，3，4，2…】，如果轮到了2这个元素，那么按照约定，允许继承3这个子过程的值在这里为1+3=4，并加上本身的2，得到结果为6；
+		int B=record[i-1]; //选择B作为放弃选择当前元素，将直接继承自己的前一号元素——即表示这个位置我放弃。例如：【1，3，2…】，如果我不选择第三个元素2，那么我将直接赋值为其前一个元素的record值，在这里是3.假设数组是【1，2，4，3】到了第四个元素，如果我不选的话，则继承前一个元素的record值为1+4==5.
+		record[i]=max(A,B); //再选与不选中的子过程中得到一个最优结果并作为当前子过程的值。
+	}
+	return record[--len];   //返回最后一个record的值。
+}
+int main(){
+	vector<int> arr;
+	int x;
+	while(cin>>x && x!=EOF){
+		arr.push_back(x);
+	}
+	int maxnum=dp_opt(arr);
+	cout<<maxnum;
+	return 0;
+}
